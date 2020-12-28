@@ -1,0 +1,3 @@
+include ':coldstart'
+include ':app'
+rootProject.name = "cold-start"
