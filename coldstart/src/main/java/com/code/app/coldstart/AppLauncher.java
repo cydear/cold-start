@@ -19,12 +19,8 @@ public class AppLauncher {
 
     }
 
-    private static class SingleHolder {
-        private static final AppLauncher holder = new AppLauncher();
-    }
-
     public static AppLauncher get() {
-        return SingleHolder.holder;
+        return new AppLauncher();
     }
 
     public AppLauncher builder(Application context) {
@@ -32,18 +28,8 @@ public class AppLauncher {
         return AppLauncher.this;
     }
 
-    public AppLauncher add(ColdStartTask task) {
-        mRootProjectBuilder.add(task);
-        return AppLauncher.this;
-    }
-
-    public AppLauncher after(ColdStartTask task) {
-        mRootProjectBuilder.after(task);
-        return AppLauncher.this;
-    }
-
-    public AppLauncher after(ColdStartTask... tasks) {
-        mRootProjectBuilder.after(tasks);
+    public AppLauncher addTaskChain(ColdStartTask... tasks) {
+        mRootProjectBuilder.addTaskChain(tasks);
         return AppLauncher.this;
     }
 

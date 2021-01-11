@@ -3,10 +3,16 @@ package com.code.app;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.code.app.coldstart.AppLauncher;
 import com.code.app.coldstart.core.ColdStartTask;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class MainActivity extends AppCompatActivity {
     private ColdStartTask taskA, taskB, taskC, taskD, taskE, taskF, taskG, taskH;
@@ -25,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
         taskB = new TaskB("taskB");
         taskC = new TaskC("taskC");
         taskD = new TaskD("taskD");
-        taskE = new TaskE("taskE",false);
+        taskE = new TaskE("taskE", false);
         taskF = new TaskF("taskF");
         taskG = new TaskG("taskG");
         taskH = new TaskH("taskH");
@@ -36,14 +42,10 @@ public class MainActivity extends AppCompatActivity {
         AppLauncher
                 .get()
                 .builder(getApplication())
-                .add(taskA)
-                .add(taskB).after(taskA)
-                .add(taskC)
-                .add(taskD).after(taskB)
-                .add(taskE).after(taskD)
-                .add(taskF)
-                .add(taskG)
-                .add(taskH).after(taskE)
+                .addTaskChain(taskA, taskB, taskD)
+                .addTaskChain(taskE, taskA, taskB, taskD)
+                .addTaskChain(taskE, taskF, taskA, taskB, taskD)
+                .addTaskChain(taskE, taskF, taskC, taskB, taskD)
                 .createProject()
                 .startTaskWithAwait();
 

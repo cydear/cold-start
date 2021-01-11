@@ -2,7 +2,6 @@ package com.code.app.coldstart.core;
 
 import android.app.Application;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.code.app.coldstart.callback.OnColdStartProjectListener;
 import com.code.app.coldstart.callback.OnTaskFinishListener;
@@ -208,7 +207,6 @@ public class ColdStartProject extends IProject implements IDependecy, OnColdStar
         private ColdStartTask mTempColdStartTask;
         private ColdStartAnchorTask mStartColdTask;
         private ColdStartAnchorTask mEndColdTask;
-        private boolean mIsSetPosition;
 
         public Builder(Application context) {
             this.appContext = context;
@@ -257,13 +255,12 @@ public class ColdStartProject extends IProject implements IDependecy, OnColdStar
          *
          * @param task
          */
-        public Builder add(ColdStartTask task) {
+        private Builder add(ColdStartTask task) {
             if (task == null) {
                 throw new IllegalArgumentException("you should add task not null");
             }
             addToRootIfNeed();
             mTempColdStartTask = task;
-            mIsSetPosition = false;
             mTempColdStartTask.addOnTaskFinishListener(new InnerOnTaskFinishListener(project));
             mTempColdStartTask.setTaskExceptionMonitor(project.mTaskExceptionMonitor);
             mTempColdStartTask.setTaskElapsedTimeMonitor(project.mTaskElapsedTimeMonitor);
@@ -277,13 +274,13 @@ public class ColdStartProject extends IProject implements IDependecy, OnColdStar
          * @param task
          * @return
          */
-        public Builder after(ColdStartTask task) {
+        private Builder after(ColdStartTask task) {
             if (task == null) {
                 throw new IllegalArgumentException("you should add task not null");
             }
             task.addSuccessor(mTempColdStartTask);
+            mTempColdStartTask = task;
             mEndColdTask.removePredecessor(task);
-            mIsSetPosition = true;
             return Builder.this;
         }
 
@@ -294,7 +291,7 @@ public class ColdStartProject extends IProject implements IDependecy, OnColdStar
          * @param tasks
          * @return
          */
-        public Builder after(ColdStartTask... tasks) {
+        private Builder after(ColdStartTask... tasks) {
             if (tasks == null) {
                 throw new IllegalArgumentException("you should add task not null");
             }
@@ -306,8 +303,26 @@ public class ColdStartProject extends IProject implements IDependecy, OnColdStar
             return Builder.this;
         }
 
+        /**
+         * 通过调用链的形式加入任务执行结构图：A -> B -> C -> D
+         *
+         * @param tasks
+         * @return
+         */
+        public Builder addTaskChain(ColdStartTask... tasks) {
+            if (tasks == null || tasks.length <= 0) {
+                throw new IllegalArgumentException("you should add task not null");
+            }
+            ColdStartTask startTask = tasks[tasks.length - 1];
+            add(startTask);
+            for (int i = tasks.length - 2; i >= 0; i--) {
+                after(tasks[i]);
+            }
+            return Builder.this;
+        }
+
         private void addToRootIfNeed() {
-            if (!mIsSetPosition && mTempColdStartTask != null) {
+            if (mTempColdStartTask != null) {
                 mStartColdTask.addSuccessor(mTempColdStartTask);
             }
         }

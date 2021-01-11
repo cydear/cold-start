@@ -1,5 +1,6 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
+    ext.kotlin_version = '1.4.30-M1'
     repositories {
         google()
         jcenter()
@@ -8,11 +9,13 @@ buildscript {
         maven {
             url 'https://dl.bintray.com/novoda-oss/snapshots/'
         }
+        maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
     }
     dependencies {
         classpath "com.android.tools.build:gradle:3.6.0"
 
         classpath "com.novoda:bintray-release:0.9.2"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
 

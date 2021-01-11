@@ -191,6 +191,10 @@ public abstract class ColdStartTask implements ITask {
     @Override
     public void addPredecessor(ColdStartTask task) {
         if (task != null && !this.mPredecessorTasks.contains(task)) {
+            //如果当前任务的后继任务也包含要添加的任务，则会形成回环引用
+            if (this.mSuccessorTasks.contains(task)) {
+                throw new RuntimeException("you try to run task " + methodId + " twice, is there a circle dependency?");
+            }
             this.mPredecessorTasks.add(task);
         }
     }
@@ -212,10 +216,16 @@ public abstract class ColdStartTask implements ITask {
             Log.e("cold-start", "a task should not after itself");
             return;
         }
+        //如果当前任务的后继任务也包含要添加的任务，则会形成回环引用
+        if (this.mPredecessorTasks.contains(task)) {
+            throw new RuntimeException("you try to run task " + methodId + " twice, is there a circle dependency?");
+        }
         //将当前任务设置为task的前置任务
         task.addPredecessor(this);
         //将task加入当前任务的后置任务列表
-        mSuccessorTasks.add(task);
+        if (!mSuccessorTasks.contains(task)) {
+            mSuccessorTasks.add(task);
+        }
     }
 
     @Override
